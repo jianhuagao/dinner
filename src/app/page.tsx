@@ -7,18 +7,18 @@ import { motion } from "framer-motion";
 import animationData from "../../public/data.json"; // 保存你的 Lottie 动画数据文件
 import Lottie from "lottie-web";
 
+const extractDishes = (text: string): string[] => {
+  return (text || "")
+    ?.split("\n") // 将文字按行分割
+    .filter((line) => line.trim() !== "" && !line.startsWith("餐厅")) // 过滤掉空行和包含“餐厅”的行
+    .map((line) => line.split("\t")[0].trim()); // 提取菜品名称
+};
+
 export default function Home() {
   const [textareaStr, setTextareaStr] = useState("");
   const [result, setResult] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
   const anim = useRef<any>(null);
-
-  const extractDishes = (text: string): string[] => {
-    return text
-      .split("\n") // 将文字按行分割
-      .filter((line) => line.trim() !== "" && !line.startsWith("餐厅")) // 过滤掉空行和包含“餐厅”的行
-      .map((line) => line.split("\t")[0].trim()); // 提取菜品名称
-  };
 
   useEffect(() => {
     const localStr = localStorage.getItem("textareaStr");
@@ -57,9 +57,9 @@ export default function Home() {
   return (
     <main className="select-none flex min-h-screen flex-col items-center justify-between p-24">
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <div className="fixed top-0 left-0 flex h-24 w-full items-end justify-center bg-gradient-to-b from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
+        <div className="fixed top-0 left-0 flex h-24 w-full items-end justify-center dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
           <div className="text-base font-bold">
-            <span className="text-3xl">🍔</span>今晚吃什么？
+            <span className="text-base pr-2">🍔</span>今晚吃什么？
           </div>
         </div>
       </div>
@@ -78,17 +78,17 @@ export default function Home() {
         ref={containerRef}
       />
 
-      <div className="w-full max-w-md px-4">
+      <div className="w-full max-w-md px-4 flex flex-col items-center lg:items-start">
         <Field>
-          <Label className="text-sm/6 font-medium">内容</Label>
-          <Description className="text-sm/6 text-black/50">
+          <Label className="text-sm/6 font-medium dark:text-white">内容</Label>
+          <Description className="text-sm/6 text-black/50 dark:text-white/50">
             复制菜单表格内容到下面.
           </Description>
           <Textarea
             value={textareaStr}
             onChange={(e) => setTextareaStr(e.target.value)}
             className={clsx(
-              "hiddenScroll mt-3 block w-full resize-none rounded-lg border-none bg-black/5 py-1.5 px-3 text-sm/6",
+              "hiddenScroll w-96 mt-3 block resize-none rounded-lg border-none bg-black/5 py-1.5 px-3 text-sm/6 dark:ring-1",
               "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
             )}
             rows={3}
