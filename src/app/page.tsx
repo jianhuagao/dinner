@@ -3,7 +3,7 @@
 import { Button, Description, Field, Label, Textarea } from "@headlessui/react";
 import clsx from "clsx";
 import { useCallback, useEffect, useState } from "react";
-import { AnimatePresence, motion, useAnimation } from "framer-motion";
+import { motion } from "framer-motion";
 
 export default function Home() {
   const [textareaStr, setTextareaStr] = useState("");
