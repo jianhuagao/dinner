@@ -1,113 +1,167 @@
-import Image from "next/image";
+"use client";
+
+import { Button, Description, Field, Label, Textarea } from "@headlessui/react";
+import clsx from "clsx";
+import { useCallback, useEffect, useState } from "react";
+import { AnimatePresence, motion, useAnimation } from "framer-motion";
 
 export default function Home() {
+  const [textareaStr, setTextareaStr] = useState("");
+  const [result, setResult] = useState("");
+
+  const extractDishes = (text: string): string[] => {
+    return text
+      .split("\n") // 将文字按行分割
+      .filter((line) => line.trim() !== "" && !line.startsWith("餐厅")) // 过滤掉空行和包含“餐厅”的行
+      .map((line) => line.split("\t")[0].trim()); // 提取菜品名称
+  };
+
+  const onSubmit = useCallback(() => {
+    //先把textareaStr存到本地localStorage
+    localStorage.setItem("textareaStr", textareaStr);
+    const dishes = extractDishes(textareaStr);
+    if (dishes.length > 0) {
+      //随机获取数组里的一项
+      const randomDish = dishes[Math.floor(Math.random() * dishes.length)];
+      setResult(randomDish);
+    }
+  }, [textareaStr]);
+
+  useEffect(() => {
+    const localStr = localStorage.getItem("textareaStr");
+    if (!textareaStr) {
+      setTextareaStr(localStr || defaultStr);
+    }
+  }, [textareaStr]);
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+    <main className="select-none flex min-h-screen flex-col items-center justify-between p-24">
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+        <div className="fixed top-0 left-0 flex h-24 w-full items-end justify-center bg-gradient-to-b from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
+          <div className="text-base font-bold">
+            <span className="text-3xl">🍔</span>今晚吃什么？
+          </div>
         </div>
       </div>
-
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
+      <div className="relative">
+        <motion.p
+          key={result} // 使用result作为key，每次result变化将会强制重新渲染motion组件
+          initial={{ scale: 0 }}
+          animate={{ scale: [1, 1.5, 1], transition: { duration: 0.5 } }}
+          exit={{ scale: 0 }}
+          className={clsx("text-2xl")}
+        >
+          {result || "?"}
+        </motion.p>
       </div>
 
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
+      <div className="w-full max-w-md px-4">
+        <Field>
+          <Label className="text-sm/6 font-medium">内容</Label>
+          <Description className="text-sm/6 text-black/50">
+            复制菜单表格内容到下面.
+          </Description>
+          <Textarea
+            value={textareaStr}
+            onChange={(e) => setTextareaStr(e.target.value)}
+            className={clsx(
+              "hiddenScroll mt-3 block w-full resize-none rounded-lg border-none bg-black/5 py-1.5 px-3 text-sm/6",
+              "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
+            )}
+            rows={3}
+          />
+        </Field>
+        <motion.div
+          className="inline-block"
+          whileHover={{ scale: 1.2 }}
+          whileTap={{ scale: 0.8 }}
         >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+          <Button
+            onClick={onSubmit}
+            className=" inline-flex mt-4 px-6 items-center gap-2 rounded-md bg-gray-700 py-1.5 text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:outline-none data-[hover]:bg-gray-600 data-[open]:bg-gray-700 data-[focus]:outline-1 data-[focus]:outline-white"
+          >
+            随机 ✨
+          </Button>
+        </motion.div>
       </div>
     </main>
   );
 }
+
+const defaultStr = `八宝粥	0	11.00	0	订餐
+酱肉葱香肠粉	1	14.00	0	订餐
+鲜滑肉片肠粉	0	14.00	0	订餐
+肉末鸡蛋肠粉	0	14.00	0	订餐
+皮蛋瘦肉粥	0	14.00	0	订餐
+瘦肉蔬菜粥	0	14.00	0	订餐
+鲜虾肠粉	0	17.00	0	订餐
+生滚鱼片粥	0	17.00	0	订餐
+艇仔粥	0	17.00	0	订餐
+牛肉滑蛋粥	0	18.00	0	订餐
+牛肉番茄芹菜肠粉	1	19.00	0	订餐
+潮式牛肉鸡蛋肠粉	2	19.00	0	订餐
+蛋炒河粉	0	19.00	0	订餐
+霸气叉烧香菜肠粉	0	19.90	0	订餐
+虾仁鱼片粥	0	22.00	2.00	订餐
+香菇滑鸡饭	1	24.00	4.00	订餐
+潮式牛肉鲜虾肠粉	0	24.00	4.00	订餐
+一碗香肉片盖饭	0	24.00	4.00	订餐
+一碗香牛肉盖饭	3	24.00	4.00	取消
+干炒牛河	2	26.00	6.00	订餐
+金汤酸菜鱼饭	1	27.00	7.00	订餐
+香菇排骨饭	0	27.00	7.00	订餐
+牛肉番茄鸡蛋饭	0	27.00	7.00	订餐
+叉烧滑蛋饭	0	29.00	9.00	订餐
+牛腩萝卜饭	0	29.00	9.00	订餐
+牛肉滑蛋饭	0	29.00	9.00	订餐
+牛腩滑蛋饭	1	29.00	9.00	订餐
+牛腩捞河粉	0	29.00	9.00	订餐
+餐厅： 老乡鸡
+花卷（2个）	0	4.00	0	订餐
+粗粮盒（红薯、南瓜、玉米）	0	6.00	0	订餐
+粗粮盒+花卷	0	8.00	0	订餐
+小米南瓜粥+松糕	0	9.00	0	订餐
+小米南瓜粥+卤肉肠	0	10.00	0	订餐
+粗粮盒+卤鸡腿	0	12.00	0	订餐
+花卷+小炒花菜	0	12.00	0	订餐
+小米南瓜粥+松糕+卤翅根	0	12.50	0	订餐
+小米南瓜粥+蒸蛋	0	13.00	0	订餐
+小米南瓜粥+松糕+卤肉肠	0	14.00	0	订餐
+松糕（2个）+鸡腿	0	14.00	0	订餐
+西红柿炒鸡蛋+卤鸡腿	0	15.00	0	订餐
+粗粮盒+西红柿炒鸡蛋	0	15.00	0	订餐
+卤鸡腿（2个）+松糕	0	16.00	0	订餐
+西红柿炒鸡蛋+土豆片	0	16.00	0	订餐
+粗粮盒+小炒花菜	0	16.00	0	订餐
+卤鸡腿+蒜蓉娃娃菜	0	16.00	0	订餐
+粗粮盒+蒜蓉娃娃菜	0	16.00	0	订餐
+小米南瓜粥+卤鸡腿（2个）	0	17.00	0	订餐
+粗粮盒+鱼香肉丝	0	17.00	0	订餐
+小米南瓜粥+西红柿炒鸡蛋+卤翅根	0	17.50	0	订餐
+西红柿炒蛋+卤鸡腿+米饭	0	18.00	0	订餐
+蒸蛋+蒜蓉娃娃菜	0	18.00	0	订餐
+鸡汤馄饨	0	18.00	0	订餐
+西红柿炒鸡蛋+土豆片+米饭	0	19.00	0	订餐
+红烧茄子+土豆片+米饭	1	19.00	0	订餐
+花卷（2个）+菠萝咕咾肉	0	19.00	0	订餐
+卤鸡腿+小炒花菜+米饭	0	19.00	0	订餐
+小米南瓜粥+西红柿炒鸡蛋+卤鸡腿	0	20.00	0	订餐
+卤鸡腿（2个）+蒸蛋	1	20.00	0	订餐
+西红柿炒鸡蛋+土豆片+黑米饭	0	21.00	1.00	订餐
+西红柿炒鸡蛋+红烧茄子+米饭	0	21.00	1.00	订餐
+粗粮盒+老母鸡汤	0	22.00	2.00	订餐
+粗粮盒+卤鸡腿+小炒花菜	0	22.00	2.00	订餐
+番茄炒蛋+小炒花菜+米饭	0	22.00	2.00	订餐
+小炒花菜+红烧茄子+米饭	0	22.00	2.00	订餐
+西红柿炒鸡蛋+红烧茄子+黑米饭	0	23.00	3.00	订餐
+卤鸡腿（2个）+蒸蛋+花卷（2个）	0	24.00	4.00	订餐
+松糕（2个）+小炒花菜+蒸蛋	0	26.00	6.00	订餐
+红烧茄子+农家小炒肉+米饭	0	27.00	7.00	订餐
+菠萝咕咾肉+红烧茄子+米饭	0	27.00	7.00	订餐
+花卷（2个）+小炒花菜+蒸蛋+鸡腿	0	28.00	8.00	订餐
+小炒花菜+农家小炒肉+米饭	0	28.00	8.00	订餐
+金汤酸菜鱼+鸡腿+黑米饭	0	29.00	9.00	订餐
+土豆片+葱油鸡+米饭	0	29.00	9.00	订餐
+蒸蛋+小炒花菜+卤肉肠+卤鸡腿	0	29.00	9.00	订餐
+金汤酸菜鱼+土豆片+黑米饭	0	30.00	10.00	订餐
+金汤酸菜鱼+红烧茄子+米饭	0	30.00	10.00	订餐`;

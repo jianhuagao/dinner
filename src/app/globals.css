@@ -31,3 +31,21 @@ body {
     text-wrap: balance;
   }
 }
+
+
+.hiddenScroll {
+  /*滚动条的宽度a*/
+  &::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  /*滚动条的滑块*/
+  &::-webkit-scrollbar-thumb {
+    display: none !important;
+  }
+}
+
+
+.animate {
+  transform: scale(1.5);
+}
