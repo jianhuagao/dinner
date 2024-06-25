@@ -2,12 +2,16 @@
 
 import { Button, Description, Field, Label, Textarea } from "@headlessui/react";
 import clsx from "clsx";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import animationData from "../../public/data.json"; // 保存你的 Lottie 动画数据文件
+import Lottie from "lottie-web";
 
 export default function Home() {
   const [textareaStr, setTextareaStr] = useState("");
   const [result, setResult] = useState("");
+  const containerRef = useRef<HTMLDivElement>(null);
+  const anim = useRef<any>(null);
 
   const extractDishes = (text: string): string[] => {
     return text
@@ -15,6 +19,27 @@ export default function Home() {
       .filter((line) => line.trim() !== "" && !line.startsWith("餐厅")) // 过滤掉空行和包含“餐厅”的行
       .map((line) => line.split("\t")[0].trim()); // 提取菜品名称
   };
+
+  useEffect(() => {
+    const localStr = localStorage.getItem("textareaStr");
+    if (!textareaStr) {
+      setTextareaStr(localStr || defaultStr);
+    }
+  }, [textareaStr]);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    anim.current = Lottie.loadAnimation({
+      container: containerRef.current,
+      animationData,
+      autoplay: false,
+      loop: false,
+    });
+
+    return () => {
+      anim.current?.destroy();
+    };
+  }, []);
 
   const onSubmit = useCallback(() => {
     //先把textareaStr存到本地localStorage
@@ -24,15 +49,10 @@ export default function Home() {
       //随机获取数组里的一项
       const randomDish = dishes[Math.floor(Math.random() * dishes.length)];
       setResult(randomDish);
+      anim.current?.stop();
+      anim.current?.play();
     }
-  }, [textareaStr]);
-
-  useEffect(() => {
-    const localStr = localStorage.getItem("textareaStr");
-    if (!textareaStr) {
-      setTextareaStr(localStr || defaultStr);
-    }
-  }, [textareaStr]);
+  }, [textareaStr, anim]);
 
   return (
     <main className="select-none flex min-h-screen flex-col items-center justify-between p-24">
@@ -43,17 +63,20 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <div className="relative">
-        <motion.p
-          key={result} // 使用result作为key，每次result变化将会强制重新渲染motion组件
-          initial={{ scale: 0 }}
-          animate={{ scale: [1, 1.5, 1], transition: { duration: 0.5 } }}
-          exit={{ scale: 0 }}
-          className={clsx("text-2xl")}
-        >
-          {result || "?"}
-        </motion.p>
-      </div>
+
+      <motion.p
+        key={result} // 使用result作为key，每次result变化将会强制重新渲染motion组件
+        initial={{ scale: 0 }}
+        animate={{ scale: [1, 1.5, 1], transition: { duration: 0.5 } }}
+        exit={{ scale: 0 }}
+        className={clsx("text-2xl")}
+      >
+        {result || "?"}
+      </motion.p>
+      <div
+        className="absolute z-[-1] left-0 bottom-0 w-full h-full"
+        ref={containerRef}
+      />
 
       <div className="w-full max-w-md px-4">
         <Field>
