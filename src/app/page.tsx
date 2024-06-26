@@ -56,7 +56,7 @@ export default function Home() {
 
   return (
     <main className="select-none flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
+      <div className="w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
         <div className="fixed top-0 left-0 flex h-24 w-full items-end justify-center dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
           <div className="text-base font-bold">
             <span className="text-base pr-2">🍔</span>今晚吃什么？
